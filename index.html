@@ -89,8 +89,8 @@
             loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
                 var geometry = new THREE.TextGeometry(text, {
                     font: font,
-                    size: 3,  // Reduced font size for a more refined look
-                    height: 1.5,
+                    size: 2.5,  // Reduced font size for a more refined look
+                    height: 1,
                     curveSegments: 12,
                     bevelEnabled: true,
                     bevelThickness: 0.3,
@@ -113,9 +113,9 @@
 
                 textMesh.position.x = -10;
                 textMesh.position.y = 0;
-                camera.position.z = 30;
+                camera.position.z = 20;  // Adjusted camera position for a smaller text
 
-                // Animation function
+                // Animation function for smooth rotation and interaction
                 function animate() {
                     requestAnimationFrame(animate);
                     textMesh.rotation.x += 0.01;
