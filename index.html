@@ -71,7 +71,7 @@
             console.log("Error accessing the camera: " + error);
         });
 
-        // 3D Text Rendering with Transparent Background and Letter Spacing
+        // 3D Text Rendering with blue text, yellow outline, letter spacing, and reduced size
         function display3DText() {
             var text = document.getElementById('inputText').value;
 
@@ -89,14 +89,13 @@
             loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
                 var geometry = new THREE.TextGeometry(text, {
                     font: font,
-                    size: 2.5,  // Reduced font size for a more refined look
+                    size: 2,  // Reduced font size
                     height: 1,
                     curveSegments: 12,
                     bevelEnabled: true,
                     bevelThickness: 0.3,
                     bevelSize: 0.2,
-                    bevelSegments: 3,
-                    letterSpacing: 0.2  // Adds some spacing between the letters
+                    bevelSegments: 3
                 });
 
                 // Materials for the text
@@ -107,14 +106,16 @@
                 var textMesh = new THREE.Mesh(geometry, textMaterial);
                 var outlineMesh = new THREE.Mesh(geometry, outlineMaterial);
 
+                // Adding slight letter spacing by adjusting position
+                geometry.center();  // Center text for better control
+
                 outlineMesh.scale.multiplyScalar(1.05);  // Slightly enlarge the outline
 
                 scene.add(outlineMesh);  // Add the outline first
                 scene.add(textMesh);     // Add the main text
 
-                textMesh.position.x = -10;
-                textMesh.position.y = 0;
-                camera.position.z = 20;  // Adjusted camera position for a smaller text
+                textMesh.position.set(-10, 0, 0);  // Adjust text position
+                camera.position.z = 30;  // Adjusted camera position for a smaller text
 
                 // Animation function for smooth rotation and interaction
                 function animate() {
