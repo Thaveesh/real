@@ -3,8 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Text with Camera</title>
+    <title>3D Text with Back Camera</title>
     <style>
+        body, html {
+            margin: 0;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
         #cameraFeed {
             position: absolute;
             top: 0;
@@ -22,46 +31,80 @@
             height: 100%;
             z-index: 1;
         }
+        #inputContainer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            display: flex;
+            gap: 10px;
+        }
+        #inputText {
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <input type="text" id="inputText" placeholder="Enter your text" />
-    <button onclick="display3DText()">Submit</button>
-    <video id="cameraFeed" autoplay></video>
+    <div id="inputContainer">
+        <input type="text" id="inputText" placeholder="Enter your text" />
+        <button onclick="display3DText()">Submit</button>
+    </div>
+    <video id="cameraFeed" autoplay playsinline></video>
     <div id="3dScene"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Camera feed access
-        navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
+        // Access the back camera
+        navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: { exact: "environment" } }
+        }).then(function (stream) {
             var video = document.getElementById('cameraFeed');
             video.srcObject = stream;
         }).catch(function (error) {
             console.log("Error accessing the camera: " + error);
         });
 
-        // 3D Text Rendering
+        // 3D Text Rendering with Transparent Background
         function display3DText() {
             var text = document.getElementById('inputText').value;
-            
+
+            // Clear previous scene
+            document.getElementById('3dScene').innerHTML = '';
+
             var scene = new THREE.Scene();
             var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            var renderer = new THREE.WebGLRenderer();
+            var renderer = new THREE.WebGLRenderer({ alpha: true });  // Enable transparency
             renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);  // Transparent background
             document.getElementById('3dScene').appendChild(renderer.domElement);
 
             var loader = new THREE.FontLoader();
             loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
                 var geometry = new THREE.TextGeometry(text, {
                     font: font,
-                    size: 10,
+                    size: 5,
                     height: 2,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 1,
+                    bevelSize: 0.5,
+                    bevelSegments: 5
                 });
-                var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+
+                var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
                 var textMesh = new THREE.Mesh(geometry, material);
                 scene.add(textMesh);
-                camera.position.z = 30;
                 
+                textMesh.position.x = -10;
+                textMesh.position.y = 0;
+                camera.position.z = 30;
+
                 function animate() {
                     requestAnimationFrame(animate);
                     textMesh.rotation.x += 0.01;
