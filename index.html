@@ -89,27 +89,39 @@
             loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
                 var geometry = new THREE.TextGeometry(text, {
                     font: font,
-                    size: 5,
-                    height: 2,
+                    size: 3,  // Reduced font size for a more refined look
+                    height: 1.5,
                     curveSegments: 12,
                     bevelEnabled: true,
-                    bevelThickness: 1,
-                    bevelSize: 0.5,
-                    bevelSegments: 5
+                    bevelThickness: 0.3,
+                    bevelSize: 0.2,
+                    bevelSegments: 3
                 });
 
-                var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-                var textMesh = new THREE.Mesh(geometry, material);
-                scene.add(textMesh);
-                
+                // Materials for the text
+                var textMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });  // Blue text
+                var outlineMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.BackSide });  // Yellow outline
+
+                // Create text mesh and outline mesh
+                var textMesh = new THREE.Mesh(geometry, textMaterial);
+                var outlineMesh = new THREE.Mesh(geometry, outlineMaterial);
+
+                outlineMesh.scale.multiplyScalar(1.05);  // Slightly enlarge the outline
+
+                scene.add(outlineMesh);  // Add the outline first
+                scene.add(textMesh);     // Add the main text
+
                 textMesh.position.x = -10;
                 textMesh.position.y = 0;
                 camera.position.z = 30;
 
+                // Animation function
                 function animate() {
                     requestAnimationFrame(animate);
                     textMesh.rotation.x += 0.01;
                     textMesh.rotation.y += 0.01;
+                    outlineMesh.rotation.x += 0.01;
+                    outlineMesh.rotation.y += 0.01;
                     renderer.render(scene, camera);
                 }
                 animate();
