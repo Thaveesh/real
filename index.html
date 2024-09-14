@@ -71,7 +71,7 @@
             console.log("Error accessing the camera: " + error);
         });
 
-        // 3D Text Rendering with Transparent Background
+        // 3D Text Rendering with Transparent Background and Letter Spacing
         function display3DText() {
             var text = document.getElementById('inputText').value;
 
@@ -95,7 +95,8 @@
                     bevelEnabled: true,
                     bevelThickness: 0.3,
                     bevelSize: 0.2,
-                    bevelSegments: 3
+                    bevelSegments: 3,
+                    letterSpacing: 0.2  // Adds some spacing between the letters
                 });
 
                 // Materials for the text
