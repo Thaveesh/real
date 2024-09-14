@@ -71,7 +71,7 @@
             console.log("Error accessing the camera: " + error);
         });
 
-        // 3D Text Rendering with blue text, yellow outline, letter spacing, and reduced size
+        // 3D Text Rendering with blue text, yellow outline, and letter spacing
         function display3DText() {
             var text = document.getElementById('inputText').value;
 
@@ -90,7 +90,7 @@
                 var geometry = new THREE.TextGeometry(text, {
                     font: font,
                     size: 2,  // Reduced font size
-                    height: 1,
+                    height: 0.5,  // Slightly thinner for better outline effect
                     curveSegments: 12,
                     bevelEnabled: true,
                     bevelThickness: 0.3,
@@ -98,18 +98,26 @@
                     bevelSegments: 3
                 });
 
-                // Materials for the text
                 var textMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });  // Blue text
                 var outlineMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.BackSide });  // Yellow outline
 
-                // Create text mesh and outline mesh
                 var textMesh = new THREE.Mesh(geometry, textMaterial);
-                var outlineMesh = new THREE.Mesh(geometry, outlineMaterial);
 
-                // Adding slight letter spacing by adjusting position
-                geometry.center();  // Center text for better control
+                // Create a slightly larger outline
+                var outlineGeometry = new THREE.TextGeometry(text, {
+                    font: font,
+                    size: 2.1,  // Slightly larger to create the outline effect
+                    height: 0.5,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.3,
+                    bevelSize: 0.2,
+                    bevelSegments: 3
+                });
+                var outlineMesh = new THREE.Mesh(outlineGeometry, outlineMaterial);
 
-                outlineMesh.scale.multiplyScalar(1.05);  // Slightly enlarge the outline
+                // Position outline slightly behind the text
+                outlineMesh.position.z = -0.01;
 
                 scene.add(outlineMesh);  // Add the outline first
                 scene.add(textMesh);     // Add the main text
