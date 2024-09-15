@@ -1,142 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Text with Back Camera</title>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Awesome AR Experience</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.2.0/aframe.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ar.js/2.2.2/aframe-ar.min.js"></script>
     <style>
-        body, html {
-            margin: 0;
-            overflow: hidden;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        #cameraFeed {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
-        }
-        #3dScene {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-        }
-        #inputContainer {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 10;
-            display: flex;
-            gap: 10px;
-        }
-        #inputText {
-            padding: 10px;
-            font-size: 16px;
-        }
-        button {
-            padding: 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
+      #submitButton {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        padding: 10px 20px;
+        font-size: 18px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
     </style>
-</head>
-<body>
-    <div id="inputContainer">
-        <input type="text" id="inputText" placeholder="Enter your text" />
-        <button onclick="display3DText()">Submit</button>
-    </div>
-    <video id="cameraFeed" autoplay playsinline></video>
-    <div id="3dScene"></div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  </head>
+  <body style="margin: 0; overflow: hidden;">
+    <button id="submitButton">Submit</button>
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+      <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9" animation="property: rotation; to: 0 360 0; loop: true; dur: 10000"></a-box>
+      <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E" animation="property: position; to: 0 1.75 -5; dir: alternate; dur: 2000; loop: true"></a-sphere>
+      <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D" animation="property: scale; to: 1.2 1.2 1.2; dir: alternate; dur: 1000; loop: true"></a-cylinder>
+      <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
+      <a-entity camera></a-entity>
+    </a-scene>
     <script>
-        // Access the back camera
-        navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: { exact: "environment" } }
-        }).then(function (stream) {
-            var video = document.getElementById('cameraFeed');
-            video.srcObject = stream;
-        }).catch(function (error) {
-            console.log("Error accessing the camera: " + error);
-        });
-
-        // 3D Text Rendering with blue text, yellow outline, and letter spacing
-        function display3DText() {
-            var text = document.getElementById('inputText').value;
-
-            // Clear previous scene
-            document.getElementById('3dScene').innerHTML = '';
-
-            var scene = new THREE.Scene();
-            var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            var renderer = new THREE.WebGLRenderer({ alpha: true });  // Enable transparency
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setClearColor(0x000000, 0);  // Transparent background
-            document.getElementById('3dScene').appendChild(renderer.domElement);
-
-            var loader = new THREE.FontLoader();
-            loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
-                var geometry = new THREE.TextGeometry(text, {
-                    font: font,
-                    size: 2,  // Reduced font size
-                    height: 0.5,  // Slightly thinner for better outline effect
-                    curveSegments: 12,
-                    bevelEnabled: true,
-                    bevelThickness: 0.3,
-                    bevelSize: 0.2,
-                    bevelSegments: 3
-                });
-
-                var textMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });  // Blue text
-                var outlineMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.BackSide });  // Yellow outline
-
-                var textMesh = new THREE.Mesh(geometry, textMaterial);
-
-                // Create a slightly larger outline
-                var outlineGeometry = new THREE.TextGeometry(text, {
-                    font: font,
-                    size: 2.1,  // Slightly larger to create the outline effect
-                    height: 0.5,
-                    curveSegments: 12,
-                    bevelEnabled: true,
-                    bevelThickness: 0.3,
-                    bevelSize: 0.2,
-                    bevelSegments: 3
-                });
-                var outlineMesh = new THREE.Mesh(outlineGeometry, outlineMaterial);
-
-                // Position outline slightly behind the text
-                outlineMesh.position.z = -0.01;
-
-                scene.add(outlineMesh);  // Add the outline first
-                scene.add(textMesh);     // Add the main text
-
-                textMesh.position.set(-10, 0, 0);  // Adjust text position
-                camera.position.z = 30;  // Adjusted camera position for a smaller text
-
-                // Animation function for smooth rotation and interaction
-                function animate() {
-                    requestAnimationFrame(animate);
-                    textMesh.rotation.x += 0.01;
-                    textMesh.rotation.y += 0.01;
-                    outlineMesh.rotation.x += 0.01;
-                    outlineMesh.rotation.y += 0.01;
-                    renderer.render(scene, camera);
-                }
-                animate();
-            });
-        }
+      document.getElementById('submitButton').addEventListener('click', function() {
+        alert('Submitted! You can add your own functionality here.');
+      });
     </script>
-</body>
+  </body>
 </html>
